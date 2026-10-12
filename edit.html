@@ -45,9 +45,18 @@
                             <label class="field">Location
                                 <input type="text" name="location" placeholder="e.g., SAS Hall 1102">
                             </label>
-                            <label class="field">Color
-                                <input type="color" name="color" value="#e06c75">
-                            </label>
+                            <div class="field">Color
+                                <div class="color-picker">
+                                    <button type="button" class="swatch" data-color="#e06c75" style="--swatch: #e06c75" title="Red" aria-label="Red"></button>
+                                    <button type="button" class="swatch" data-color="#f0883e" style="--swatch: #f0883e" title="Orange" aria-label="Orange"></button>
+                                    <button type="button" class="swatch" data-color="#e5c07b" style="--swatch: #e5c07b" title="Yellow" aria-label="Yellow"></button>
+                                    <button type="button" class="swatch" data-color="#98c379" style="--swatch: #98c379" title="Green" aria-label="Green"></button>
+                                    <button type="button" class="swatch" data-color="#61afef" style="--swatch: #61afef" title="Blue" aria-label="Blue"></button>
+                                    <button type="button" class="swatch" data-color="#c678dd" style="--swatch: #c678dd" title="Purple" aria-label="Purple"></button>
+                                    <button type="button" class="btn-small swatch-custom">Custom</button>
+                                    <input type="color" name="color" value="#e06c75" class="custom-color" hidden>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="meetings">
@@ -59,6 +68,7 @@
                                             <option>Lecture</option>
                                             <option>Recitation</option>
                                             <option>Lab</option>
+                                            <option>Class</option>
                                             <option>Other</option>
                                         </select>
                                     </label>

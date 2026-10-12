@@ -58,6 +58,54 @@ function setupClassForm(form) {
             event.target.closest(".meeting").remove();
         }
     });
+
+    setupColorPicker(form);
+}
+
+
+// ===== Color choices (6 swatches + Custom) =====
+
+// Highlight the swatch that matches the saved color. If none match, it's a
+// custom color: highlight "Custom" and show the color selector.
+function updateColorPicker(form) {
+    const value = form.elements.color.value.toLowerCase();
+    let matched = false;
+
+    form.querySelectorAll(".swatch").forEach(swatch => {
+        const isChosen = swatch.dataset.color === value;
+        swatch.classList.toggle("selected", isChosen);
+        if (isChosen) matched = true;
+    });
+
+    form.querySelector(".swatch-custom").classList.toggle("selected", !matched);
+    form.elements.color.hidden = matched;
+}
+
+function setupColorPicker(form) {
+    const colorInput = form.elements.color;
+
+    form.querySelector(".color-picker").addEventListener("click", (event) => {
+        // One of the 6 colors
+        const swatch = event.target.closest(".swatch");
+        if (swatch) {
+            colorInput.value = swatch.dataset.color;
+            updateColorPicker(form);
+            return;
+        }
+
+        // Custom: show the color selector and open it
+        if (event.target.closest(".swatch-custom")) {
+            colorInput.hidden = false;
+            try {
+                colorInput.showPicker();
+            } catch {
+                colorInput.click();
+            }
+        }
+    });
+
+    colorInput.addEventListener("input", () => updateColorPicker(form));
+    updateColorPicker(form);
 }
 
 
@@ -113,6 +161,7 @@ function fillClassForm(form, savedClass) {
     f.instructor.value = savedClass.instructor;
     f.location.value = savedClass.location;
     f.color.value = savedClass.color;
+    updateColorPicker(form);
 
     removeExtraMeetings(form);
     savedClass.meetings.forEach((meeting, index) => {
@@ -575,6 +624,7 @@ classForm.addEventListener("submit", (event) => {
 
     classForm.reset();
     removeExtraMeetings(classForm);
+    updateColorPicker(classForm);
     refreshAll();
     showToast("Saved!");
 });
