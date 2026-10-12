@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Dark background (same as the app) -->
+  <rect width="512" height="512" fill="#1f1f1f"/>
+  <!-- Timeline: the past is solid, the future is faded -->
+  <line x1="104" y1="256" x2="256" y2="256" stroke="#e06c75" stroke-width="30" stroke-linecap="round"/>
+  <line x1="256" y1="256" x2="408" y2="256" stroke="#e06c75" stroke-opacity="0.45" stroke-width="30" stroke-linecap="round"/>
+  <!-- A past point -->
+  <circle cx="112" cy="256" r="40" fill="#e06c75"/>
+  <!-- "Now": a ring with a dot inside -->
+  <circle cx="256" cy="256" r="66" fill="#1f1f1f" stroke="#e06c75" stroke-width="26"/>
+  <circle cx="256" cy="256" r="24" fill="#e06c75"/>
+  <!-- A future point -->
+  <circle cx="400" cy="256" r="40" fill="#e06c75" fill-opacity="0.45"/>
+</svg>

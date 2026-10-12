@@ -1207,3 +1207,27 @@ a.btn-small {
         font-size: 0.85rem;
     }
 }
+
+
+/* ===== Opened from the home screen (installed app) ===== */
+
+/* A dark strip behind the phone's clock and battery, in both themes */
+@media (display-mode: standalone) {
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        height: env(safe-area-inset-top);
+        background: #1f1f1f;
+    }
+}
+
+/* Push the page down so nothing hides under the clock and battery */
+@media (display-mode: standalone) and (max-width: 700px) {
+    main {
+        padding-top: calc(16px + env(safe-area-inset-top));
+    }
+}
