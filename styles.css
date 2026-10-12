@@ -726,3 +726,195 @@ a.btn {
     color: var(--muted);
     border: 1px solid var(--border);
 }
+
+
+/* ===== Weekly Timeline ===== */
+
+.week-grid {
+    display: grid;
+    grid-template-columns: 64px repeat(7, minmax(0, 1fr));
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.week-corner,
+.week-day-head,
+.week-row-label,
+.week-tasks {
+    border-bottom: 1px solid var(--border);
+}
+
+.week-day-head,
+.week-tasks,
+.week-col {
+    border-left: 1px solid var(--border);
+}
+
+/* Day names and dates */
+.week-day-head {
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.week-dow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+.week-date {
+    min-width: 28px;
+    line-height: 28px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50%;
+}
+
+.week-day-head.is-today .week-date {
+    color: #ffffff;
+    background: var(--accent);
+}
+
+.week-day-head.is-today .week-dow {
+    color: var(--accent);
+}
+
+/* "Due" row of task chips */
+.week-row-label {
+    padding: 8px 8px 0 0;
+    text-align: right;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+.week-tasks {
+    min-height: 30px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.week-task {
+    font: inherit;
+    font-size: 0.72rem;
+    text-align: left;
+    padding: 3px 6px;
+    color: var(--text);
+    background: var(--hover);
+    border: none;
+    border-left: 3px solid var(--class-color, var(--border));
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.week-task.status-overdue {
+    background: color-mix(in srgb, var(--danger) 22%, transparent);
+}
+
+.week-task.status-done {
+    background: color-mix(in srgb, var(--success) 20%, transparent);
+}
+
+.week-task.status-late {
+    background: color-mix(in srgb, var(--warning) 22%, transparent);
+}
+
+/* Hour labels down the left side */
+.week-hours {
+    position: relative;
+}
+
+.week-hour {
+    position: absolute;
+    right: 8px;
+    margin-top: 3px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+}
+
+/* Day columns with a faint line every hour */
+.week-col {
+    position: relative;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        var(--border) 0,
+        var(--border) 1px,
+        transparent 1px,
+        transparent var(--hour-height)
+    );
+}
+
+.week-col.is-today {
+    background-color: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+/* Class blocks */
+.week-class {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    box-sizing: border-box;
+    padding: 3px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    overflow: hidden;
+    font-size: 0.72rem;
+    background: color-mix(in srgb, var(--class-color) 22%, var(--surface));
+    border-left: 3px solid var(--class-color);
+    border-radius: 3px;
+}
+
+.week-class-code,
+.week-class-time {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.week-class-code {
+    font-weight: 600;
+}
+
+.week-class-time {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+}
+
+/* "You are here" line */
+.week-now {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    height: 2px;
+    background: var(--accent);
+    pointer-events: none;
+}
+
+.week-now::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+}

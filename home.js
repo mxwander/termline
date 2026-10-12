@@ -192,6 +192,178 @@ function renderTodo(now) {
 }
 
 
+// ===== Weekly Timeline =====
+
+const HOUR_HEIGHT = 44;   // pixels for one hour on the timeline
+let weekOffset = 0;       // 0 = this week, -1 = last week, 1 = next week, ...
+
+// The Sunday that starts the week containing this date, at midnight
+function startOfWeek(date) {
+    const sunday = new Date(date);
+    sunday.setHours(0, 0, 0, 0);
+    sunday.setDate(sunday.getDate() - sunday.getDay());
+    return sunday;
+}
+
+// Hours to show: one hour before the earliest class to one hour after the latest
+function timelineHours(classes) {
+    const meetings = classes.flatMap(c => c.meetings);
+    if (meetings.length === 0) return [8, 18];
+
+    const earliest = Math.min(...meetings.map(m => toMinutes(m.start)));
+    const latest = Math.max(...meetings.map(m => toMinutes(m.end)));
+    return [
+        Math.max(0, Math.floor(earliest / 60) - 1),
+        Math.min(24, Math.ceil(latest / 60) + 1),
+    ];
+}
+
+// "Oct 11 – 17, 2026" or "Oct 25 – Nov 1, 2026"
+function weekLabel(first, last) {
+    const sameMonth = first.getMonth() === last.getMonth();
+    const start = first.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const end = last.toLocaleDateString("en-US", sameMonth ? { day: "numeric" } : { month: "short", day: "numeric" });
+    if (first.getFullYear() !== last.getFullYear()) {
+        return `${start}, ${first.getFullYear()} – ${end}, ${last.getFullYear()}`;
+    }
+    return `${start} – ${end}, ${last.getFullYear()}`;
+}
+
+function renderWeek(now) {
+    const grid = document.getElementById("week-grid");
+    grid.innerHTML = "";
+
+    const classes = loadData("classes");
+    const tasks = loadData("tasks");
+    const classById = new Map(classes.map(c => [c.id, c]));
+
+    const [startHour, endHour] = timelineHours(classes);
+    const pxPerMinute = HOUR_HEIGHT / 60;
+    const bodyHeight = (endHour - startHour) * HOUR_HEIGHT;
+
+    // The 7 dates in the week being shown
+    const weekStart = startOfWeek(now);
+    weekStart.setDate(weekStart.getDate() + weekOffset * 7);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(weekStart);
+        day.setDate(day.getDate() + i);
+        days.push(day);
+    }
+
+    const todayKey = dateKey(now);
+    document.getElementById("week-label").textContent = weekLabel(days[0], days[6]);
+
+    // Row 1: day names and dates
+    grid.append(el("div", "week-corner"));
+    for (const day of days) {
+        const head = el("div", "week-day-head");
+        if (dateKey(day) === todayKey) head.classList.add("is-today");
+        head.append(
+            el("span", "week-dow", day.toLocaleDateString("en-US", { weekday: "short" })),
+            el("span", "week-date", String(day.getDate())),
+        );
+        grid.append(head);
+    }
+
+    // Row 2: tasks due each day
+    grid.append(el("div", "week-row-label", "Due"));
+    for (const day of days) {
+        const cell = el("div", "week-tasks");
+        const dayTasks = tasks
+            .filter(task => task.dueDate === dateKey(day))
+            .sort((a, b) => taskDueDate(a) - taskDueDate(b));
+
+        for (const task of dayTasks) {
+            const chip = el("button", `week-task status-${taskStatus(task, now)}`, task.name);
+            chip.type = "button";
+            chip.dataset.id = task.id;
+            chip.title = `${task.name} · Due ${formatTime(task.dueTime)}`;
+            const savedClass = classById.get(task.classId);
+            if (savedClass) chip.style.setProperty("--class-color", savedClass.color);
+            cell.append(chip);
+        }
+        grid.append(cell);
+    }
+
+    // Row 3: hour labels, then one column per day with class blocks
+    const hoursColumn = el("div", "week-hours");
+    hoursColumn.style.height = `${bodyHeight}px`;
+    for (let hour = startHour; hour < endHour; hour++) {
+        const label = el("span", "week-hour", formatTime(`${hour}:00`));
+        label.style.top = `${(hour - startHour) * HOUR_HEIGHT}px`;
+        hoursColumn.append(label);
+    }
+    grid.append(hoursColumn);
+
+    for (const day of days) {
+        const column = el("div", "week-col");
+        column.style.height = `${bodyHeight}px`;
+        column.style.setProperty("--hour-height", `${HOUR_HEIGHT}px`);
+
+        const isToday = dateKey(day) === todayKey;
+        if (isToday) column.classList.add("is-today");
+
+        // Classes that meet on this day of the week
+        const letter = DAY_LETTERS[day.getDay()];
+        for (const savedClass of classes) {
+            for (const meeting of savedClass.meetings) {
+                if (!meeting.days.includes(letter)) continue;
+
+                const start = toMinutes(meeting.start);
+                const end = toMinutes(meeting.end);
+
+                const block = el("div", "week-class");
+                block.style.top = `${(start - startHour * 60) * pxPerMinute}px`;
+                block.style.height = `${(end - start) * pxPerMinute}px`;
+                block.style.setProperty("--class-color", savedClass.color);
+                block.title = [
+                    `${savedClass.code} · ${meeting.type}`,
+                    `${formatTime(meeting.start)} – ${formatTime(meeting.end)}`,
+                    savedClass.location,
+                ].filter(Boolean).join("\n");
+
+                block.append(
+                    el("span", "week-class-code", savedClass.code),
+                    el("span", "week-class-time", `${formatTime(meeting.start)} · ${meeting.type}`),
+                );
+                column.append(block);
+            }
+        }
+
+        // Red "you are here" line on today's column
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        if (isToday && nowMinutes >= startHour * 60 && nowMinutes <= endHour * 60) {
+            const line = el("div", "week-now");
+            line.style.top = `${(nowMinutes - startHour * 60) * pxPerMinute}px`;
+            column.append(line);
+        }
+
+        grid.append(column);
+    }
+}
+
+document.getElementById("week-prev").addEventListener("click", () => {
+    weekOffset -= 1;
+    renderWeek(new Date());
+});
+
+document.getElementById("week-next").addEventListener("click", () => {
+    weekOffset += 1;
+    renderWeek(new Date());
+});
+
+document.getElementById("week-today").addEventListener("click", () => {
+    weekOffset = 0;
+    renderWeek(new Date());
+});
+
+// Click a task in the week view to open its details
+document.getElementById("week-grid").addEventListener("click", (event) => {
+    const chip = event.target.closest(".week-task");
+    if (chip) openTaskDetails(chip.dataset.id, renderAll);
+});
+
 // ===== Draw everything =====
 
 function renderAll() {
@@ -201,6 +373,7 @@ function renderAll() {
 
     renderTodayClasses(now);
     renderTodayTasks(now);
+    renderWeek(now);
     renderTodo(now);
 }
 

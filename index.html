@@ -31,8 +31,15 @@
             </section>
 
             <section id="weekly-timeline">
-                <h2>Weekly Timeline</h2>
-                <p>The week view will go here.</p>
+                <div class="list-header">
+                    <h2>Weekly Timeline <span id="week-label" class="today-date"></span></h2>
+                    <div class="list-controls">
+                        <button type="button" id="week-prev" class="btn-small" aria-label="Previous week">‹</button>
+                        <button type="button" id="week-today" class="btn-small">Today</button>
+                        <button type="button" id="week-next" class="btn-small" aria-label="Next week">›</button>
+                    </div>
+                </div>
+                <div id="week-grid" class="week-grid"></div>
             </section>
 
             <section id="todo">
