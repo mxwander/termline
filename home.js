@@ -195,7 +195,11 @@ function renderTodo(now) {
 // ===== Weekly Timeline =====
 
 const HOUR_HEIGHT = 44;   // pixels for one hour on the timeline
-let weekOffset = 0;       // 0 = this week, -1 = last week, 1 = next week, ...
+let weekOffset = 0;       // Computer: 0 = this week, -1 = last week, 1 = next week, ...
+let dayOffset = 0;        // Phone: 0 = starts today, 1 = starts tomorrow, ...
+
+// True when the screen is phone-sized (matches the @media rule in styles.css)
+const phoneQuery = window.matchMedia("(max-width: 700px)");
 
 // The Sunday that starts the week containing this date, at midnight
 function startOfWeek(date) {
@@ -229,6 +233,35 @@ function weekLabel(first, last) {
     return `${start} – ${end}, ${last.getFullYear()}`;
 }
 
+// 13 -> "1 PM", 9 -> "9 AM" (short labels for the timeline's hour column)
+function hourLabel(hour) {
+    return `${hour % 12 || 12} ${hour < 12 ? "AM" : "PM"}`;
+}
+
+// Computer: Sunday-Saturday of the chosen week. Phone: 3 days starting at the chosen day.
+function visibleDays(now) {
+    let first;
+    let count;
+    if (phoneQuery.matches) {
+        first = new Date(now);
+        first.setHours(0, 0, 0, 0);
+        first.setDate(first.getDate() + dayOffset);
+        count = 3;
+    } else {
+        first = startOfWeek(now);
+        first.setDate(first.getDate() + weekOffset * 7);
+        count = 7;
+    }
+
+    const days = [];
+    for (let i = 0; i < count; i++) {
+        const day = new Date(first);
+        day.setDate(day.getDate() + i);
+        days.push(day);
+    }
+    return days;
+}
+
 function renderWeek(now) {
     const grid = document.getElementById("week-grid");
     grid.innerHTML = "";
@@ -241,18 +274,12 @@ function renderWeek(now) {
     const pxPerMinute = HOUR_HEIGHT / 60;
     const bodyHeight = (endHour - startHour) * HOUR_HEIGHT;
 
-    // The 7 dates in the week being shown
-    const weekStart = startOfWeek(now);
-    weekStart.setDate(weekStart.getDate() + weekOffset * 7);
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-        const day = new Date(weekStart);
-        day.setDate(day.getDate() + i);
-        days.push(day);
-    }
+    // The dates being shown (7 on a computer, 3 on a phone)
+    const days = visibleDays(now);
+    grid.style.gridTemplateColumns = `var(--hours-width) repeat(${days.length}, minmax(0, 1fr))`;
 
     const todayKey = dateKey(now);
-    document.getElementById("week-label").textContent = weekLabel(days[0], days[6]);
+    document.getElementById("week-label").textContent = weekLabel(days[0], days[days.length - 1]);
 
     // Row 1: day names and dates
     grid.append(el("div", "week-corner"));
@@ -290,7 +317,7 @@ function renderWeek(now) {
     const hoursColumn = el("div", "week-hours");
     hoursColumn.style.height = `${bodyHeight}px`;
     for (let hour = startHour; hour < endHour; hour++) {
-        const label = el("span", "week-hour", formatTime(`${hour}:00`));
+        const label = el("span", "week-hour", hourLabel(hour));
         label.style.top = `${(hour - startHour) * HOUR_HEIGHT}px`;
         hoursColumn.append(label);
     }
@@ -343,20 +370,27 @@ function renderWeek(now) {
     }
 }
 
-document.getElementById("week-prev").addEventListener("click", () => {
-    weekOffset -= 1;
+// Arrows move one week on a computer, one day on a phone
+function moveTimeline(step) {
+    if (phoneQuery.matches) {
+        dayOffset += step;
+    } else {
+        weekOffset += step;
+    }
     renderWeek(new Date());
-});
+}
 
-document.getElementById("week-next").addEventListener("click", () => {
-    weekOffset += 1;
-    renderWeek(new Date());
-});
+document.getElementById("week-prev").addEventListener("click", () => moveTimeline(-1));
+document.getElementById("week-next").addEventListener("click", () => moveTimeline(1));
 
 document.getElementById("week-today").addEventListener("click", () => {
     weekOffset = 0;
+    dayOffset = 0;
     renderWeek(new Date());
 });
+
+// Redraw when the window crosses between phone and computer size
+phoneQuery.addEventListener("change", () => renderWeek(new Date()));
 
 // Click a task in the week view to open its details
 document.getElementById("week-grid").addEventListener("click", (event) => {
