@@ -918,3 +918,78 @@ a.btn {
     border-radius: 50%;
     background: var(--accent);
 }
+
+
+/* ===== Monthly Calendar ===== */
+
+.month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: auto;                 /* weekday-name row */
+    grid-auto-rows: minmax(110px, auto);      /* day rows grow to fit their tasks */
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.month-grid > * {
+    border-left: 1px solid var(--border);
+}
+
+.month-grid > :nth-child(7n + 1) {
+    border-left: none;
+}
+
+.month-dow {
+    padding: 8px;
+    text-align: center;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+.month-day {
+    min-width: 0;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border-top: 1px solid var(--border);
+    cursor: pointer;
+}
+
+.month-day:hover {
+    background: var(--hover);
+}
+
+.month-day.other-month {
+    opacity: 0.4;
+}
+
+.month-num {
+    align-self: flex-start;
+    min-width: 24px;
+    line-height: 24px;
+    margin-bottom: 2px;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 50%;
+}
+
+.month-day.is-today .month-num {
+    color: #ffffff;
+    background: var(--accent);
+}
+
+.chip-class {
+    color: var(--muted);
+}
+
+/* Let long task names wrap instead of getting cut off (day boxes grow to fit) */
+.month-task {
+    white-space: normal;
+    line-height: 1.3;
+}

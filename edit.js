@@ -365,12 +365,15 @@ document.getElementById("confirm-yes").addEventListener("click", () => {
 });
 
 
-// ===== Edit pop-up =====
+// ===== Edit pop-up (also used to add a task from another page) =====
 
-function openEditor(kind, id) {
+// openEditor("task", id)          -> edit that saved task
+// openEditor("task", null, date)  -> add a new task with the due date filled in
+function openEditor(kind, id, presetDate) {
     const isClass = kind === "class";
+    const isNew = !id;
     const key = isClass ? CLASSES_KEY : TASKS_KEY;
-    const item = loadData(key).find(x => x.id === id);
+    const item = isNew ? null : loadData(key).find(x => x.id === id);
 
     // Copy the Add form so the editor has the exact same fields
     const form = (isClass ? classForm : taskForm).cloneNode(true);
@@ -379,15 +382,21 @@ function openEditor(kind, id) {
 
     if (isClass) {
         setupClassForm(form);
-        fillClassForm(form, item);
+        if (item) fillClassForm(form, item);
     } else {
         setupTaskForm(form);
-        fillTaskForm(form, item);
+        if (item) {
+            fillTaskForm(form, item);
+        } else {
+            if (presetDate) form.elements.dueDate.value = presetDate;
+            updateOtherField(form);
+        }
     }
 
-    // Replace the Save button with Cancel + Update
+    // Replace the Save button with Cancel + Save/Update
     const saveButton = form.querySelector("button[type='submit']");
-    saveButton.textContent = isClass ? "Update Class" : "Update Task";
+    const noun = isClass ? "Class" : "Task";
+    saveButton.textContent = isNew ? `Save ${noun}` : `Update ${noun}`;
 
     const cancelButton = el("button", "btn btn-secondary", "Cancel");
     cancelButton.type = "button";
@@ -403,8 +412,14 @@ function openEditor(kind, id) {
         if (!data) return;
 
         const items = loadData(key);
-        const original = items.find(x => x.id === id);
-        Object.assign(original, data);
+        if (isNew) {
+            const newItem = isClass
+                ? { id: makeId(), ...data }
+                : { id: makeId(), ...data, completed: false, completedAt: null };
+            items.push(newItem);
+        } else {
+            Object.assign(items.find(x => x.id === id), data);
+        }
         saveData(key, items);
 
         editDialog.close();
@@ -412,7 +427,7 @@ function openEditor(kind, id) {
         showToast("Saved!");
     });
 
-    editDialog.replaceChildren(el("h2", null, isClass ? "Edit Class" : "Edit Task"), form);
+    editDialog.replaceChildren(el("h2", null, `${isNew ? "Add" : "Edit"} ${noun}`), form);
     editDialog.showModal();
 }
 
@@ -586,17 +601,26 @@ setupTaskForm(taskForm);
 refreshAll();
 
 
-// If another page sent us here to edit a task (edit.html?editTask=ID&from=index.html),
-// open that task's editor right away, then go back to that page when it closes.
+// Another page can send us here to edit or add a task:
+//   edit.html?editTask=ID&from=index.html        -> edit that task
+//   edit.html?newTask=2026-10-14&from=calendar.html -> add a task due that day
+// When the pop-up closes, go back to the page we came from.
 const params = new URLSearchParams(window.location.search);
 const editTaskId = params.get("editTask");
+const newTaskDate = params.get("newTask");
 const returnTo = params.get("from");
+let openedFromLink = false;
 
 if (editTaskId && loadData(TASKS_KEY).some(t => t.id === editTaskId)) {
     openEditor("task", editTaskId);
-    if (["index.html", "calendar.html"].includes(returnTo)) {
-        editDialog.addEventListener("close", () => {
-            window.location.href = returnTo;
-        }, { once: true });
-    }
+    openedFromLink = true;
+} else if (newTaskDate && /^\d{4}-\d{2}-\d{2}$/.test(newTaskDate)) {
+    openEditor("task", null, newTaskDate);
+    openedFromLink = true;
+}
+
+if (openedFromLink && ["index.html", "calendar.html"].includes(returnTo)) {
+    editDialog.addEventListener("close", () => {
+        window.location.href = returnTo;
+    }, { once: true });
 }

@@ -23,9 +23,23 @@
 
         <main>
             <section id="month-calendar">
-                <h2>Monthly Calendar</h2>
-                <p>The month view with important tasks will go here.</p>
+                <div class="list-header">
+                    <h2 id="month-label"></h2>
+                    <div class="list-controls">
+                        <button type="button" id="month-prev" class="btn-small" aria-label="Previous month">‹</button>
+                        <button type="button" id="month-today" class="btn-small">Today</button>
+                        <button type="button" id="month-next" class="btn-small" aria-label="Next month">›</button>
+                    </div>
+                </div>
+                <div id="month-grid" class="month-grid"></div>
             </section>
         </main>
+
+        <!-- Pop-up with a task's details (filled in by task-details.js) -->
+        <dialog id="details-dialog" class="modal modal-small"></dialog>
+
+        <script src="storage.js"></script>
+        <script src="task-details.js"></script>
+        <script src="calendar.js"></script>
     </body>
 </html>
