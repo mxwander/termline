@@ -115,3 +115,30 @@ function el(tag, className, text) {
 function plural(count, word, pluralWord = word + "s") {
     return `${count} ${count === 1 ? word : pluralWord}`;
 }
+
+
+
+// ===== Time and date helpers =====
+
+// Day letters used in meeting times, indexed by JavaScript's getDay() (0 = Sunday)
+const DAY_LETTERS = ["U", "M", "T", "W", "H", "F", "S"];
+
+// "13:55" -> 835 (minutes after midnight), like to_minutes in your Python schedule builder
+function toMinutes(hhmm) {
+    const [hours, minutes] = hhmm.split(":").map(Number);
+    return hours * 60 + minutes;
+}
+
+// "13:55" -> "1:55 PM"
+function formatTime(hhmm) {
+    const [hours, minutes] = hhmm.split(":").map(Number);
+    const suffix = hours < 12 ? "AM" : "PM";
+    return `${hours % 12 || 12}:${String(minutes).padStart(2, "0")} ${suffix}`;
+}
+
+// A Date -> "2026-10-08", the same format tasks use for dueDate
+function dateKey(date) {
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${date.getFullYear()}-${month}-${day}`;
+}

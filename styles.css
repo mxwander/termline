@@ -692,3 +692,37 @@ a.btn {
     display: inline-block;
     text-decoration: none;
 }
+
+
+/* ===== Today section ===== */
+
+.today-date {
+    margin-left: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.class-item.ended {
+    opacity: 0.45;
+}
+
+/* "Now" and "Next" tags on today's classes */
+.tag {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    border-radius: 999px;
+}
+
+.tag-now {
+    color: #ffffff;
+    background: var(--accent);
+}
+
+.tag-next {
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
