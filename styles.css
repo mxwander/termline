@@ -1034,3 +1034,23 @@ input[type="color"].custom-color {
     height: 28px;
     padding: 2px;
 }
+
+
+/* Keep the red * on the same line as its label; inputs go on the next line */
+.field {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 4px;
+    min-width: 0;
+}
+
+.field > input,
+.field > select,
+.field > textarea,
+.field > .color-picker {
+    flex-basis: 100%;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
