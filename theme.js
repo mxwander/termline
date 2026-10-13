@@ -45,3 +45,24 @@ document.addEventListener("DOMContentLoaded", () => {
         updateButton(next);
     });
 });
+
+
+
+// Safety net: if sign-in can't load (missing file, no internet), show a message
+// instead of leaving the page hidden forever
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        const root = document.documentElement;
+        if (!root.classList.contains("auth-pending")) return;   // loaded fine
+
+        root.classList.remove("auth-pending");
+        document.body.innerHTML = `
+            <main class="auth-main">
+                <div class="auth-card">
+                    <h1>Termline couldn't load</h1>
+                    <p class="auth-tagline">Check your internet connection, then refresh the page.</p>
+                    <button type="button" class="btn btn-primary" onclick="location.reload()">Refresh</button>
+                </div>
+            </main>`;
+    }, 10000);
+});

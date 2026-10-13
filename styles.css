@@ -1231,3 +1231,215 @@ a.btn-small {
         padding-top: calc(16px + env(safe-area-inset-top));
     }
 }
+
+
+/* ===== Accounts ===== */
+
+/* Hide pages until we know who is signed in (prevents a flash before redirecting) */
+.auth-pending body {
+    visibility: hidden;
+}
+
+/* Account button + theme button at the bottom of the sidebar */
+.sidebar-footer {
+    position: relative;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar-footer .theme-toggle {
+    margin-top: 0;
+}
+
+.account-button {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    font: inherit;
+    font-weight: 600;
+    color: #ffffff;
+    background: var(--accent);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.account-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    z-index: 60;
+    min-width: 220px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.account-menu[hidden] {
+    display: none;
+}
+
+.account-name {
+    font-weight: 600;
+}
+
+.account-email {
+    font-size: 0.8rem;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+}
+
+.account-menu .btn {
+    margin-top: 8px;
+}
+
+@media (max-width: 700px) {
+    .sidebar-footer {
+        margin-top: 0;
+        flex-shrink: 0;
+    }
+
+    .account-menu {
+        left: auto;
+        right: 0;
+    }
+}
+
+/* ===== Sign-in page ===== */
+
+.auth-main {
+    flex: 1;
+    max-width: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+.auth-card {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 380px;
+    padding: 32px 28px;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.auth-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 13px;
+}
+
+.auth-card h1 {
+    margin: 12px 0 4px;
+    font-size: 1.5rem;
+}
+
+.auth-tagline {
+    margin: 0 0 24px;
+    font-size: 0.9rem;
+}
+
+.auth-card form {
+    text-align: left;
+}
+
+.google-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.link-button {
+    padding: 0;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.link-button:hover {
+    text-decoration: underline;
+}
+
+#forgot-button {
+    align-self: flex-end;
+    margin-top: -6px;
+}
+
+#forgot-button[hidden] {
+    display: none;
+}
+
+.auth-error {
+    margin: 0;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    text-align: left;
+    color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    border-radius: 4px;
+}
+
+.auth-switch {
+    margin: 20px 0 0;
+    font-size: 0.85rem;
+}
+
+#verify-screen {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#verify-screen[hidden],
+#auth-forms[hidden] {
+    display: none;
+}
+
+#verify-screen h2 {
+    margin: 0;
+}
+
+#verify-screen p {
+    margin: 0;
+}
+
+/* Theme button in the top-right corner of the sign-in page */
+.auth-theme {
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top));
+    right: 16px;
+    margin: 0;
+}
