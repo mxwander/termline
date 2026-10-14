@@ -6,7 +6,7 @@
 
 ![Termline home page](docs/home.png)
 
-Termline lets students sign in, add their class schedule and assignments, and see everyhting in one place: what's happening today, a Google Calendar-style weekly timple, and a 10-day to-do list. It works on a compuiter or as an iPhone home-screen app, and keeps working offline.
+Termline lets students sign in, add their class schedule and assignments, and see everything in one place: what's happening today, a Google Calendar-style weekly timeline, and a 10-day to-do list. It works on a computer or as an iPhone home-screen app, and keeps working offline.
 
 ## Features
 
