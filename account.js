@@ -25,6 +25,7 @@ onAuthStateChanged(auth, (user) => {
         return;
     }
     addAccountButton(user);
+    addOfflineBanner();
     // Show the page once their classes and tasks have loaded
     whenDataReady(() => document.documentElement.classList.remove("auth-pending"));
 });
@@ -94,6 +95,21 @@ function addAccountButton(user) {
     const footer = make("div", "sidebar-footer");
     themeButton.before(footer);
     footer.append(button, themeButton, menu);
+}
+
+// ===== "You're offline" banner =====
+
+function addOfflineBanner() {
+    if (document.getElementById("offline-banner")) return;   // already added
+
+    const banner = make("div", "offline-banner", "Offline. Changes will sync when you're back online.");
+    banner.id = "offline-banner";
+    document.querySelector("main").prepend(banner);
+
+    const update = () => banner.hidden = navigator.onLine;
+    update();
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
 }
 
 // ===== Delete account =====

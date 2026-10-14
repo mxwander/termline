@@ -1341,6 +1341,21 @@ a.btn-small {
     font-size: 0.8rem;
 }
 
+/* "You're offline" banner at the top of the page */
+.offline-banner {
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: color-mix(in srgb, var(--warning) 18%, transparent);
+    border-left: 3px solid var(--warning);
+    border-radius: 4px;
+}
+
+.offline-banner[hidden] {
+    display: none;
+}
+
 /* Delete account pop-up */
 .delete-dialog input {
     width: 100%;

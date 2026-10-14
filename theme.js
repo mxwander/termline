@@ -66,3 +66,10 @@ window.addEventListener("load", () => {
             </main>`;
     }, 10000);
 });
+
+// Save Termline's files on the device so it opens without internet (see sw.js)
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(error => {
+        console.warn("Couldn't set up offline mode:", error);
+    });
+}
