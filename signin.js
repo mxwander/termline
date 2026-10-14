@@ -179,6 +179,15 @@ document.getElementById("different-button").addEventListener("click", async () =
 });
 
 
+// ===== "Your account was deleted" message =====
+
+if (new URLSearchParams(window.location.search).has("deleted")) {
+    const notice = document.getElementById("auth-notice");
+    notice.textContent = "Your account was deleted.";
+    notice.hidden = false;
+    history.replaceState(null, "", "signin.html");   // so refreshing doesn't show it again
+}
+
 // ===== Where to go when the page opens or someone signs in =====
 
 onAuthStateChanged(auth, (user) => {

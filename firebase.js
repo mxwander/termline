@@ -42,4 +42,8 @@ export {
     signInWithPopup,
     signOut,
     reload,
+    deleteUser,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    reauthenticateWithPopup,
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";

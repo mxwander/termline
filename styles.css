@@ -1335,6 +1335,27 @@ a.btn-small {
     margin-top: 8px;
 }
 
+.account-menu .delete-account {
+    align-self: center;
+    margin-top: 8px;
+    font-size: 0.8rem;
+}
+
+/* Delete account pop-up */
+.delete-dialog input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+}
+
+.delete-dialog input[type="text"] {
+    font-family: "JetBrains Mono", monospace;
+}
+
+.delete-dialog .auth-error {
+    margin-bottom: 16px;
+}
+
 @media (max-width: 700px) {
     .sidebar-footer {
         margin-top: 0;
@@ -1444,6 +1465,15 @@ a.btn-small {
     text-align: left;
     color: var(--danger);
     background: color-mix(in srgb, var(--danger) 12%, transparent);
+    border-radius: 4px;
+}
+
+.auth-notice {
+    margin: 0 0 20px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 12%, transparent);
     border-radius: 4px;
 }
 
