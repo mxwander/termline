@@ -35,8 +35,19 @@ function removeExtraMeetings(form) {
     });
 }
 
+// Online classes don't meet at set times: gray out the meeting boxes.
+// (Disabled boxes are skipped when the form checks required fields.)
+function updateOnlineState(form) {
+    const online = form.elements.online.checked;
+    form.querySelectorAll(".meeting").forEach(box => box.disabled = online);
+    form.querySelector(".add-meeting").disabled = online;
+    form.querySelector(".meetings").classList.toggle("is-disabled", online);
+}
+
 function setupClassForm(form) {
     form.querySelector(".add-meeting").addEventListener("click", () => addMeetingBox(form));
+    form.elements.online.addEventListener("change", () => updateOnlineState(form));
+    updateOnlineState(form);
 
     form.querySelector(".meetings").addEventListener("click", (event) => {
         if (event.target.classList.contains("remove-meeting")) {
@@ -110,8 +121,9 @@ function setupTaskForm(form) {
 // ===== Read a form into an object, or fill a form from an object =====
 
 function readClassForm(form) {
+    const online = form.elements.online.checked;
     const meetings = [];
-    for (const box of form.querySelectorAll(".meeting")) {
+    for (const box of online ? [] : form.querySelectorAll(".meeting")) {
         const days = [...box.querySelectorAll("input[type='checkbox']:checked")].map(b => b.value);
         const start = box.querySelector(".meeting-start").value;
         const end = box.querySelector(".meeting-end").value;
@@ -135,6 +147,7 @@ function readClassForm(form) {
         instructor: f.instructor.value.trim(),
         location: f.location.value.trim(),
         color: f.color.value,
+        online: online,
         meetings: meetings,
     };
 }
@@ -148,6 +161,7 @@ function fillClassForm(form, savedClass) {
     f.color.value = savedClass.color;
     updateColorPicker(form);
 
+    f.online.checked = Boolean(savedClass.online);
     removeExtraMeetings(form);
     savedClass.meetings.forEach((meeting, index) => {
         const box = index === 0 ? form.querySelector(".meeting") : addMeetingBox(form);
@@ -158,6 +172,7 @@ function fillClassForm(form, savedClass) {
             b.checked = meeting.days.includes(b.value);
         });
     });
+    updateOnlineState(form);
 }
 
 function readTaskForm(form) {
@@ -300,8 +315,9 @@ function renderClasses() {
 
         const info = el("div", "item-info");
         info.append(el("span", "item-title", savedClass.code));
-        if (savedClass.title) {
-            info.append(el("span", "item-sub", savedClass.title));
+        const sub = [savedClass.title, savedClass.online ? "Online" : ""].filter(Boolean).join(" · ");
+        if (sub) {
+            info.append(el("span", "item-sub", sub));
         }
 
         row.append(dot, info);
@@ -613,6 +629,7 @@ classForm.addEventListener("submit", (event) => {
     classForm.reset();
     removeExtraMeetings(classForm);
     updateColorPicker(classForm);
+    updateOnlineState(classForm);
     refreshAll();
     showToast("Saved!");
 });

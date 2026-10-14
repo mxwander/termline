@@ -265,6 +265,23 @@ textarea {
 
 /* ===== Meeting time box ===== */
 
+/* "Online class" checkbox above the meeting times */
+.online-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+/* Grayed out when "Online class" is checked */
+.meetings.is-disabled,
+.add-meeting:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
 .meetings {
     display: flex;
     flex-direction: column;
@@ -833,6 +850,19 @@ a.btn {
     background: color-mix(in srgb, var(--warning) 22%, transparent);
 }
 
+/* "Online" row of class chips */
+.week-online-class {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 6px;
+    background: color-mix(in srgb, var(--class-color) 22%, var(--surface));
+    border-left: 3px solid var(--class-color);
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* Hour labels down the left side */
 .week-hours {
     position: relative;
@@ -1149,6 +1179,11 @@ a.btn-small {
     /* Weekly Timeline: narrower hour labels */
     .week-grid {
         --hours-width: 48px;
+    }
+
+    .week-row-label {
+        padding-right: 4px;
+        letter-spacing: 0;
     }
 
     .week-hour {

@@ -77,7 +77,12 @@ function renderTodayClasses(now) {
     }
     meetings.sort((a, b) => toMinutes(a.meeting.start) - toMinutes(b.meeting.start));
 
-    if (meetings.length === 0) {
+    // Online classes show at the top on weekdays (Mon-Fri)
+    const onlineToday = isWeekday(now)
+        ? classes.filter(c => c.online).sort((a, b) => a.code.localeCompare(b.code))
+        : [];
+
+    if (meetings.length === 0 && onlineToday.length === 0) {
         box.append(el("p", null, "No classes today."));
         return;
     }
@@ -86,6 +91,24 @@ function renderTodayClasses(now) {
     const next = meetings.find(m => toMinutes(m.meeting.start) > nowMinutes);
 
     const list = el("ul", "item-list");
+    for (const savedClass of onlineToday) {
+        const row = el("li", "item class-item");
+
+        const dot = el("span", "dot");
+        dot.style.background = savedClass.color;
+
+        // Line 1: code · Online.  Line 2: title · instructor
+        const info = el("div", "item-info");
+        const title = el("span", "item-title", savedClass.code);
+        title.append(el("span", "todo-class", " · Online"));
+        const meta = [savedClass.title, savedClass.instructor].filter(Boolean);
+        info.append(title);
+        if (meta.length > 0) info.append(el("span", "item-sub mono", meta.join(" · ")));
+
+        row.append(dot, info);
+        list.append(row);
+    }
+
     for (const item of meetings) {
         const { savedClass, meeting } = item;
         const start = toMinutes(meeting.start);
@@ -209,6 +232,12 @@ function startOfWeek(date) {
     return sunday;
 }
 
+// Monday through Friday
+function isWeekday(date) {
+    const day = date.getDay();
+    return day >= 1 && day <= 5;
+}
+
 // Hours to show: one hour before the earliest class to one hour after the latest
 function timelineHours(classes) {
     const meetings = classes.flatMap(c => c.meetings);
@@ -311,6 +340,27 @@ function renderWeek(now) {
             cell.append(chip);
         }
         grid.append(cell);
+    }
+
+    // Online classes row (only if there are any): a chip on each weekday
+    const onlineClasses = classes
+        .filter(c => c.online)
+        .sort((a, b) => a.code.localeCompare(b.code));
+
+    if (onlineClasses.length > 0) {
+        grid.append(el("div", "week-row-label", "Online"));
+        for (const day of days) {
+            const cell = el("div", "week-tasks week-online");
+            if (isWeekday(day)) {
+                for (const savedClass of onlineClasses) {
+                    const chip = el("div", "week-online-class", savedClass.code);
+                    chip.style.setProperty("--class-color", savedClass.color);
+                    chip.title = [savedClass.code, savedClass.title, "Online"].filter(Boolean).join(" · ");
+                    cell.append(chip);
+                }
+            }
+            grid.append(cell);
+        }
     }
 
     // Row 3: hour labels, then one column per day with class blocks
