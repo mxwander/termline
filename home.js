@@ -431,7 +431,11 @@ document.getElementById("todo-list").addEventListener("click", handleTaskClick);
 
 // ===== When the page opens =====
 
-renderAll();
+// Draw once the account's data has loaded, and again whenever it changes
+whenDataReady(() => {
+    renderAll();
 
-// Re-check every minute so "Now"/"Next" move along and tasks turn red without a refresh
-setInterval(renderAll, 60 * 1000);
+    // Re-check every minute so "Now"/"Next" move along and tasks turn red without a refresh
+    setInterval(renderAll, 60 * 1000);
+});
+onDataChange(renderAll);

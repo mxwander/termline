@@ -176,7 +176,11 @@ document.getElementById("month-today").addEventListener("click", () => changeMon
 
 // ===== When the page opens =====
 
-renderMonth();
+// Draw once the account's data has loaded, and again whenever it changes
+whenDataReady(() => {
+    renderMonth();
 
-// Re-check every minute so task colors stay current
-setInterval(renderMonth, 60 * 1000);
+    // Re-check every minute so task colors stay current
+    setInterval(renderMonth, 60 * 1000);
+});
+onDataChange(renderMonth);

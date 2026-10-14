@@ -1,14 +1,84 @@
-// ===== Shared helpers for saving and loading app data =====
+// ===== App data: an in-memory copy, kept in sync with the signed-in account =====
+//
+// data-sync.js fills this copy from Firebase and keeps it up to date.
+// Pages read and change it with loadData() and saveData(), just like before,
+// and saveData() sends only what changed up to Firebase.
 
-// Read a list (like "classes" or "tasks") from the browser. Empty list if none saved yet.
+const dataCache = { classes: [], tasks: [] };
+let dataReady = false;
+const readyCallbacks = [];
+const changeCallbacks = [];
+let cloudWriter = null;   // set by data-sync.js once someone is signed in
+
+// Get a copy of a list ("classes" or "tasks")
 function loadData(key) {
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : [];
+    return structuredClone(dataCache[key] || []);
 }
 
-// Save a list to the browser
+// Save a whole list. Works out which items were added, changed, or removed,
+// and sends just those to the account.
 function saveData(key, items) {
-    localStorage.setItem(key, JSON.stringify(items));
+    const before = new Map((dataCache[key] || []).map(item => [item.id, item]));
+    const after = new Set(items.map(item => item.id));
+    const changes = [];
+
+    for (const item of items) {
+        if (!sameData(before.get(item.id), item)) changes.push({ type: "set", item });
+    }
+    for (const id of before.keys()) {
+        if (!after.has(id)) changes.push({ type: "delete", id });
+    }
+
+    dataCache[key] = structuredClone(items);
+
+    // Returns a promise that finishes once Firebase confirms the save
+    if (cloudWriter && changes.length > 0) return cloudWriter(key, changes);
+    return Promise.resolve();
+}
+
+// True if two items hold the same data (ignores the order of their fields)
+function sameData(a, b) {
+    const sorted = (value) => {
+        if (Array.isArray(value)) return value.map(sorted);
+        if (value && typeof value === "object") {
+            return Object.keys(value).sort().reduce((out, k) => ({ ...out, [k]: sorted(value[k]) }), {});
+        }
+        return value;
+    };
+    return JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
+}
+
+// Run something once the account's data has loaded (right away if it already has)
+function whenDataReady(callback) {
+    if (dataReady) {
+        callback();
+    } else {
+        readyCallbacks.push(callback);
+    }
+}
+
+// Run something whenever the data changes, including changes from another device
+function onDataChange(callback) {
+    changeCallbacks.push(callback);
+}
+
+// --- Used only by data-sync.js ---
+
+function receiveData(key, items) {
+    dataCache[key] = items;
+}
+
+function dataUpdated() {
+    if (!dataReady) {
+        dataReady = true;
+        readyCallbacks.forEach(callback => callback());
+    } else {
+        changeCallbacks.forEach(callback => callback());
+    }
+}
+
+function setCloudWriter(writer) {
+    cloudWriter = writer;
 }
 
 // Make a unique ID so each class and task can be found later for editing or deleting

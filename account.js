@@ -1,7 +1,7 @@
 // Runs on Home, Calendar, and Edit:
 // 1. Sends anyone who isn't signed in (or hasn't verified their email) to the sign-in page
 // 2. Adds the account button (their initial) at the bottom of the sidebar
-import { auth, onAuthStateChanged, signOut } from "./firebase.js";
+import { auth, db, onAuthStateChanged, signOut, terminate, clearIndexedDbPersistence } from "./firebase.js";
 
 onAuthStateChanged(auth, (user) => {
     if (!user || !user.emailVerified) {
@@ -9,8 +9,22 @@ onAuthStateChanged(auth, (user) => {
         return;
     }
     addAccountButton(user);
-    document.documentElement.classList.remove("auth-pending");   // show the page
+    // Show the page once their classes and tasks have loaded
+    whenDataReady(() => document.documentElement.classList.remove("auth-pending"));
 });
+
+
+// Sign out, and erase this device's offline copy of their data first
+async function signOutAndErase() {
+    try {
+        await terminate(db);
+        await clearIndexedDbPersistence(db);
+    } catch (error) {
+        // Can fail if Termline is open in another tab; signing out still works
+        console.warn("Couldn't erase the offline copy:", error);
+    }
+    await signOut(auth);   // the check above then sends them to the sign-in page
+}
 
 
 function make(tag, className, text) {
@@ -40,7 +54,7 @@ function addAccountButton(user) {
 
     const signOutButton = make("button", "btn btn-secondary", "Sign out");
     signOutButton.type = "button";
-    signOutButton.addEventListener("click", () => signOut(auth));   // the check above then redirects
+    signOutButton.addEventListener("click", signOutAndErase);
     menu.append(signOutButton);
 
     button.addEventListener("click", (event) => {

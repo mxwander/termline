@@ -10,21 +10,6 @@ const confirmDialog = document.getElementById("confirm-dialog");
 const byCode = (a, b) => a.code.localeCompare(b.code);
 
 
-// ===== Small helpers =====
-
-function el(tag, className, text) {
-    const element = document.createElement(tag);
-    if (className) element.className = className;
-    if (text !== undefined) element.textContent = text;
-    return element;
-}
-
-// plural(1, "task") -> "1 task", plural(3, "class", "classes") -> "3 classes"
-function plural(count, word, pluralWord = word + "s") {
-    return `${count} ${count === 1 ? word : pluralWord}`;
-}
-
-
 // ===== Meeting time boxes (work in any class form) =====
 
 function addMeetingBox(form) {
@@ -383,10 +368,13 @@ function renderTasks() {
 
 function fillClassDropdown() {
     const select = taskForm.elements.classId;
+    const chosen = select.value;   // keep whatever is picked when the list redraws
     select.innerHTML = '<option value="">None</option>';
     for (const savedClass of loadData(CLASSES_KEY).sort(byCode)) {
         select.append(new Option(savedClass.code, savedClass.id));
     }
+    select.value = chosen;
+    if (select.value !== chosen) select.value = "";   // that class was deleted
 }
 
 function refreshAll() {
@@ -648,29 +636,36 @@ taskForm.addEventListener("submit", (event) => {
 
 setupClassForm(classForm);
 setupTaskForm(taskForm);
-refreshAll();
 
+// Draw once the account's data has loaded, and again whenever it changes
+whenDataReady(() => {
+    refreshAll();
+    openEditorFromLink();
+});
+onDataChange(refreshAll);
 
 // Another page can send us here to edit or add a task:
 //   edit.html?editTask=ID&from=index.html        -> edit that task
 //   edit.html?newTask=2026-10-14&from=calendar.html -> add a task due that day
 // When the pop-up closes, go back to the page we came from.
-const params = new URLSearchParams(window.location.search);
-const editTaskId = params.get("editTask");
-const newTaskDate = params.get("newTask");
-const returnTo = params.get("from");
-let openedFromLink = false;
+function openEditorFromLink() {
+    const params = new URLSearchParams(window.location.search);
+    const editTaskId = params.get("editTask");
+    const newTaskDate = params.get("newTask");
+    const returnTo = params.get("from");
+    let openedFromLink = false;
 
-if (editTaskId && loadData(TASKS_KEY).some(t => t.id === editTaskId)) {
-    openEditor("task", editTaskId);
-    openedFromLink = true;
-} else if (newTaskDate && /^\d{4}-\d{2}-\d{2}$/.test(newTaskDate)) {
-    openEditor("task", null, newTaskDate);
-    openedFromLink = true;
-}
+    if (editTaskId && loadData(TASKS_KEY).some(t => t.id === editTaskId)) {
+        openEditor("task", editTaskId);
+        openedFromLink = true;
+    } else if (newTaskDate && /^\d{4}-\d{2}-\d{2}$/.test(newTaskDate)) {
+        openEditor("task", null, newTaskDate);
+        openedFromLink = true;
+    }
 
-if (openedFromLink && ["index.html", "calendar.html"].includes(returnTo)) {
-    editDialog.addEventListener("close", () => {
-        window.location.href = returnTo;
-    }, { once: true });
+    if (openedFromLink && ["index.html", "calendar.html"].includes(returnTo)) {
+        editDialog.addEventListener("close", () => {
+            window.location.href = returnTo;
+        }, { once: true });
+    }
 }
