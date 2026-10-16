@@ -507,7 +507,8 @@ input[type="checkbox"] {
 /* ===== Pop-up windows ===== */
 
 .modal {
-    width: min(560px, 90vw);
+    box-sizing: border-box;
+    width: min(608px, 90vw);
     max-height: 85vh;
     padding: 22px 24px;
     color: var(--text);
@@ -522,7 +523,7 @@ input[type="checkbox"] {
 }
 
 .modal-small {
-    width: min(400px, 90vw);
+    width: min(448px, 90vw);
 }
 
 .modal p {
@@ -699,6 +700,95 @@ input[type="checkbox"] {
 
 .details-notes {
     white-space: pre-wrap;
+}
+
+/* ===== Class details pop-up ===== */
+
+.details-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.details-close {
+    margin: -4px -8px 0 0;
+    padding: 0 8px;
+    font: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.details-close:hover,
+.details-close:focus-visible {
+    color: var(--text);
+    background: var(--hover);
+}
+
+.details-close:focus {
+    outline: none;
+}
+
+.details-meetings,
+.details-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.details-task {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 8px;
+    font: inherit;
+    font-size: 0.85rem;
+    text-align: left;
+    color: var(--text);
+    background: var(--hover);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.details-task:hover {
+    filter: brightness(1.15);
+}
+
+.details-task.status-overdue {
+    background: color-mix(in srgb, var(--danger) 22%, transparent);
+}
+
+.details-task-due {
+    flex-shrink: 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+}
+
+.details-empty {
+    color: var(--muted);
+}
+
+/* Classes you can click on the Home page */
+.week-class,
+.week-online-class,
+.class-item[data-class-id] {
+    cursor: pointer;
+}
+
+.week-class:hover,
+.week-online-class:hover {
+    filter: brightness(1.15);
+}
+
+.class-item[data-class-id]:hover {
+    background: var(--hover);
 }
 
 .status-text-overdue { color: var(--danger); }

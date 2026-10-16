@@ -93,6 +93,8 @@ function renderTodayClasses(now) {
     const list = el("ul", "item-list");
     for (const savedClass of onlineToday) {
         const row = el("li", "item class-item");
+        row.dataset.classId = savedClass.id;
+        row.dataset.date = dateKey(now);
 
         const dot = el("span", "dot");
         dot.style.background = savedClass.color;
@@ -115,6 +117,9 @@ function renderTodayClasses(now) {
         const end = toMinutes(meeting.end);
 
         const row = el("li", "item class-item");
+        row.dataset.classId = savedClass.id;
+        row.dataset.meeting = savedClass.meetings.indexOf(meeting);
+        row.dataset.date = dateKey(now);
         if (end <= nowMinutes) row.classList.add("ended");
 
         const dot = el("span", "dot");
@@ -354,6 +359,8 @@ function renderWeek(now) {
             if (isWeekday(day)) {
                 for (const savedClass of onlineClasses) {
                     const chip = el("div", "week-online-class", savedClass.code);
+                    chip.dataset.classId = savedClass.id;
+                    chip.dataset.date = dateKey(day);
                     chip.style.setProperty("--class-color", savedClass.color);
                     chip.title = [savedClass.code, savedClass.title, "Online"].filter(Boolean).join(" · ");
                     cell.append(chip);
@@ -384,13 +391,16 @@ function renderWeek(now) {
         // Classes that meet on this day of the week
         const letter = DAY_LETTERS[day.getDay()];
         for (const savedClass of classes) {
-            for (const meeting of savedClass.meetings) {
-                if (!meeting.days.includes(letter)) continue;
+            savedClass.meetings.forEach((meeting, index) => {
+                if (!meeting.days.includes(letter)) return;
 
                 const start = toMinutes(meeting.start);
                 const end = toMinutes(meeting.end);
 
                 const block = el("div", "week-class");
+                block.dataset.classId = savedClass.id;
+                block.dataset.meeting = index;
+                block.dataset.date = dateKey(day);
                 block.style.top = `${(start - startHour * 60) * pxPerMinute}px`;
                 block.style.height = `${(end - start) * pxPerMinute}px`;
                 block.style.setProperty("--class-color", savedClass.color);
@@ -405,7 +415,7 @@ function renderWeek(now) {
                     el("span", "week-class-time", `${formatTime(meeting.start)} · ${meeting.type}`),
                 );
                 column.append(block);
-            }
+            });
         }
 
         // Red "you are here" line on today's column
@@ -442,11 +452,25 @@ document.getElementById("week-today").addEventListener("click", () => {
 // Redraw when the window crosses between phone and computer size
 phoneQuery.addEventListener("change", () => renderWeek(new Date()));
 
-// Click a task in the week view to open its details
+// Click a task or a class in the week view to open its details
 document.getElementById("week-grid").addEventListener("click", (event) => {
     const chip = event.target.closest(".week-task");
     if (chip) openTaskDetails(chip.dataset.id, renderAll);
+
+    const classBlock = event.target.closest("[data-class-id]");
+    if (classBlock) showClass(classBlock);
 });
+
+// Click a class in Today to open its details
+document.getElementById("today-classes").addEventListener("click", (event) => {
+    const row = event.target.closest("[data-class-id]");
+    if (row) showClass(row);
+});
+
+function showClass(element) {
+    const meeting = element.dataset.meeting === undefined ? null : Number(element.dataset.meeting);
+    openClassDetails(element.dataset.classId, meeting, element.dataset.date);
+}
 
 // ===== Draw everything =====
 

@@ -18,6 +18,7 @@ const APP_FILES = [
     "theme.js",
     "storage.js",
     "task-details.js",
+    "class-details.js",
     "home.js",
     "calendar.js",
     "edit.js",

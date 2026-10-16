@@ -12,6 +12,7 @@ Termline lets students sign in, add their class schedule and assignments, and se
 
 - **Today view:** today's classes with *Now* and *Next* tags, plus tasks due today
 - **Weekly timeline:** color-coded class blocks, a row of due dates, and a live "now" line
+- **Class details:** click any class to see its meeting times, location, instructor, and upcoming tasks
 - **10-day to-do list:** overdue tasks first, then upcoming, then completed
 - **Task status colors:** red for overdue, green for done on time, orange for done late
 - **Monthly calendar:** every due date at a glance; click a day to add a task

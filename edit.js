@@ -422,7 +422,7 @@ document.getElementById("confirm-yes").addEventListener("click", () => {
 
 // openEditor("task", id)          -> edit that saved task
 // openEditor("task", null, date)  -> add a new task with the due date filled in
-function openEditor(kind, id, presetDate) {
+function openEditor(kind, id, presetDate, presetClass) {
     const isClass = kind === "class";
     const isNew = !id;
     const key = isClass ? CLASSES_KEY : TASKS_KEY;
@@ -442,6 +442,7 @@ function openEditor(kind, id, presetDate) {
             fillTaskForm(form, item);
         } else {
             if (presetDate) form.elements.dueDate.value = presetDate;
+            if (presetClass) form.elements.classId.value = presetClass;
             updateOtherField(form);
         }
     }
@@ -669,6 +670,8 @@ function openEditorFromLink() {
     const params = new URLSearchParams(window.location.search);
     const editTaskId = params.get("editTask");
     const newTaskDate = params.get("newTask");
+    const editClassId = params.get("editClass");
+    const newTaskClassId = params.get("newTaskFor");
     const returnTo = params.get("from");
     let openedFromLink = false;
 
@@ -677,6 +680,12 @@ function openEditorFromLink() {
         openedFromLink = true;
     } else if (newTaskDate && /^\d{4}-\d{2}-\d{2}$/.test(newTaskDate)) {
         openEditor("task", null, newTaskDate);
+        openedFromLink = true;
+    } else if (editClassId && loadData(CLASSES_KEY).some(c => c.id === editClassId)) {
+        openEditor("class", editClassId);
+        openedFromLink = true;
+    } else if (newTaskClassId && loadData(CLASSES_KEY).some(c => c.id === newTaskClassId)) {
+        openEditor("task", null, null, newTaskClassId);
         openedFromLink = true;
     }
 
